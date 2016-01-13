@@ -17,6 +17,7 @@ dependencies:
   - decorator==4.0.6
   - functools32==3.2.3.post2
   - gnureadline==6.3.3
+  - gtfs-realtime-bindings==0.0.4
   - ipykernel==4.2.2
   - ipython==4.0.1
   - ipython-genutils==0.1.0
@@ -35,6 +36,7 @@ dependencies:
   - path.py==8.1.2
   - pexpect==4.0.1
   - pickleshare==0.5
+  - protobuf==2.6.1
   - ptyprocess==0.5
   - pygments==2.0.2
   - pyzmq==15.2.0
