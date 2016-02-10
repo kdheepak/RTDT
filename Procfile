@@ -1,1 +1,1 @@
-web: gunicorn mytransit/app:app --log-file -
+web: gunicorn mytransit.app:app --log-file -
