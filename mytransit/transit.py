@@ -32,14 +32,18 @@ def convert_df_to_list(df):
     # bus20_west_list = [str(i) for i in bus20_west_df['trip_id'].tolist()]
     return([str(i) for i in df['trip_id'].tolist()])
 
+def get_real_time_data_request_response():
+    r = requests.get('http://www.rtd-denver.com/google_sync/TripUpdate.pb', auth=(os.getenv('RTD_USERNAME'), os.getenv('RTD_PASSWORD')))
+    if r.ok:
+        return(r.content, r.headers)
 
 def get_entities(bus_list):
 
     feed = gtfs_realtime_pb2.FeedMessage()
 
-    r = requests.get('http://www.rtd-denver.com/google_sync/TripUpdate.pb', auth=(os.getenv('RTD_USERNAME'), os.getenv('RTD_PASSWORD')))
+    content, _ = get_real_time_data_request_response()
 
-    feed.ParseFromString(r.content)
+    feed.ParseFromString(content)
 
     list_entities = []
 
@@ -60,8 +64,4 @@ def get_markers_for_list_entities(list_entities, stops_df):
     return marker
 
 def main():
-
-    bus20_east_df, bus20_west_df = get_bus_data_from_csv()
-
-    bus20_east_list = convert_df_to_list(bus20_east_df)
-
+    pass
