@@ -43,4 +43,4 @@ def mapview():
     return render_template('map.html', mymap=mymap)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.debug = True
