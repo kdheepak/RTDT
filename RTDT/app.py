@@ -31,6 +31,10 @@ def data():
         current_location = json.loads(request.args.get('pos'))
     except:
         current_location = {u'lat': 39.7433814, u'lng': -104.98910989999999}
+
+    if current_location is None:
+        current_location = {u'lat': 39.7433814, u'lng': -104.98910989999999}
+
     print(current_location)
     print("before gtfs - {}".format(datetime.datetime.now()))
     get_gtfs_data()
