@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <style>
       html, body {
+        cursor: pointer;
         height: 100%;
         margin: 0;
         padding: 0;
@@ -31,6 +32,7 @@ mixpanel.init("816ed6a8fcec6531046e86f537e9f09c");</script><!-- end Mixpanel -->
 </script>
   </head>
   <body>
+      <script src="https://cdn.rawgit.com/HPNeo/gmaps/master/gmaps.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="{{
   url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
@@ -273,9 +275,12 @@ function continueRender()
             map: map,
             icon: image,
             opacity: .375,
+            optimized: false,
         });
+            getInfoCallback(map, contentString)();
         google.maps.event.addListener(marker, 'click',
                 getInfoCallback(map, contentString));
+
 
         // gmarkers.push(marker);
     };
@@ -284,13 +289,14 @@ function continueRender()
 
 }
 
+
 $(document).bind('init_complete', render);
 
 // setInterval(render, 5000);
 
     </script>
 
-    <div id="map"></div>
+    <div id="map" data-tap-disabled="true" ></div>
     <div id="info" class="lightbox"> Last updated on {{ last_modified }} </div>
 
   </body>
