@@ -79,7 +79,7 @@ def data():
 
     lat_lng = {'lat': 39.7392, 'lng': -104.9903} # Denver downtown
 
-    UTC_OFFSET = 7
+    UTC_OFFSET = int(os.getenv("OFFSET", 7))
 
     dt = datetime.datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S GMT')
     dt = dt - datetime.timedelta(hours=UTC_OFFSET)
