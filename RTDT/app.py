@@ -47,7 +47,7 @@ def data():
     print("before list - {}".format(datetime.datetime.now()))
     bus20_east_list = convert_df_to_list(bus20_east_df)
     bus20_west_list = convert_df_to_list(bus20_west_df)
-    all_buses_list = convert_df_to_list(all_buses_df)
+    # all_buses_list = convert_df_to_list(all_buses_df)
     print("after list - {}".format(datetime.datetime.now()))
 
     print("before header - {}".format(datetime.datetime.now()))
@@ -58,17 +58,24 @@ def data():
     print("before entities - {}".format(datetime.datetime.now()))
     l1 = get_entities(bus20_east_list)
     l2 = get_entities(bus20_west_list)
-    l3 = get_entities(all_buses_list)
+    # l3 = get_entities(all_buses_list)
     print("after entities - {}".format(datetime.datetime.now()))
 
     bus_20_east_dict = {'/static/transit-east.png': get_markers_for_list_entities(l1, stops_df, current_location),
                }
     bus_20_west_dict = {'/static/transit-west.png': get_markers_for_list_entities(l2, stops_df, current_location),
                  }
+        
+    print("Created dicts")
 
-    all_buses_dict = {'/static/transit.png': get_markers_for_list_entities(l3, stops_df, current_location)}
+    # jall_buses_dict = {'/static/transit.png': get_markers_for_list_entities(l3, stops_df, current_location)}
+    all_buses_dict = {'/static/transit.png': []}
+
+    print("Created all dicts")
 
     markers = merge_two_dicts(all_buses_dict, merge_two_dicts(bus_20_east_dict, bus_20_west_dict))
+
+    print("Merged everything")
 
     lat_lng = {'lat': 39.7392, 'lng': -104.9903} # Denver downtown
 
@@ -77,6 +84,8 @@ def data():
     dt = datetime.datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S GMT')
     dt = dt - datetime.timedelta(hours=UTC_OFFSET)
     last_modified = dt.strftime('%a, %d %b %Y %H:%M:%S MST')
+
+    print("return everything")
 
     data = {'last_modified': last_modified,
             'location': lat_lng,
