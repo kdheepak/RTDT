@@ -47,7 +47,7 @@ def data():
     print("before list - {}".format(datetime.datetime.now()))
     bus20_east_list = convert_df_to_list(bus20_east_df)
     bus20_west_list = convert_df_to_list(bus20_west_df)
-    # all_buses_list = convert_df_to_list(all_buses_df)
+    all_buses_list = convert_df_to_list(all_buses_df)
     print("after list - {}".format(datetime.datetime.now()))
 
     print("before header - {}".format(datetime.datetime.now()))
@@ -58,7 +58,7 @@ def data():
     print("before entities - {}".format(datetime.datetime.now()))
     l1 = get_entities(bus20_east_list)
     l2 = get_entities(bus20_west_list)
-    # l3 = get_entities(all_buses_list)
+    l3 = get_entities(all_buses_list)
     print("after entities - {}".format(datetime.datetime.now()))
 
     bus_20_east_dict = {'/static/transit-east.png': get_markers_for_list_entities(l1, stops_df, current_location),
@@ -68,7 +68,7 @@ def data():
         
     print("Created dicts")
 
-    # jall_buses_dict = {'/static/transit.png': get_markers_for_list_entities(l3, stops_df, current_location)}
+    # all_buses_dict = {'/static/transit.png': get_markers_for_list_entities(l3, stops_df, current_location)}
     all_buses_dict = {'/static/transit.png': []}
 
     print("Created all dicts")
