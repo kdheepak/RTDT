@@ -8,7 +8,7 @@ import os
 import os.path
 import datetime
 
-def get_gtfs_data():
+def get_gtfs_data(force=False):
     url = 'http://www.rtd-denver.com/GoogleFeeder/google_transit_Jan16_Runboard.zip'
     headers_file = 'google_feeder_headers.txt'
 
@@ -22,6 +22,8 @@ def get_gtfs_data():
             f_line = f.read()
             if last_modified not in f_line:
                 print("File are not the same, submit rerequest")
+                if force:
+                    rerequest=True
             else:
                 print("File unchanged!")
                 if not os.path.isfile('stops.txt'):

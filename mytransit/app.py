@@ -19,6 +19,11 @@ from helper import merge_two_dicts
 app = Flask(__name__, template_folder="./templates")
 GoogleMaps(app)
 
+@app.route("/update")
+def update():
+    get_gtfs_data(force=True)
+    return("Update complete")
+
 @app.route("/data")
 def data():
     
