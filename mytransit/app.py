@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, g
 from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map
 
@@ -21,7 +21,9 @@ GoogleMaps(app)
 
 @app.route("/data")
 def data():
-
+    
+    current_location = json.loads(request.args.get('pos'), "{u'lat': 39.7433814, u'lng': -104.98910989999999}")
+    print(current_location)
     print("before gtfs - {}".format(datetime.datetime.now()))
     get_gtfs_data()
     print("after gtfs - {}".format(datetime.datetime.now()))
@@ -45,9 +47,9 @@ def data():
     l2 = get_entities(bus20_west_list)
     print("after entities - {}".format(datetime.datetime.now()))
 
-    bus_20_east_dict = {'/static/transit-east.png': get_markers_for_list_entities(l1, stops_df),
+    bus_20_east_dict = {'/static/transit-east.png': get_markers_for_list_entities(l1, stops_df, current_location),
                }
-    bus_20_west_dict = {'/static/transit-west.png': get_markers_for_list_entities(l2, stops_df),
+    bus_20_west_dict = {'/static/transit-west.png': get_markers_for_list_entities(l2, stops_df, current_location),
                  }
 
     markers = merge_two_dicts(bus_20_east_dict, bus_20_west_dict)

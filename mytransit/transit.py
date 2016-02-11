@@ -21,8 +21,7 @@ def get_gtfs_data():
         with open(headers_file) as f:
             f_line = f.read()
             if last_modified not in f_line:
-                print("File are not the same")
-                rerequest = True
+                print("File are not the same, submit rerequest")
             else:
                 print("File unchanged!")
                 if not os.path.isfile('stops.txt'):
@@ -85,7 +84,7 @@ def get_entities(bus_list):
 
     return(list_entities)
 
-def get_markers_for_list_entities(list_entities, stops_df):
+def get_markers_for_list_entities(list_entities, stops_df, current_location):
     marker = []
     for entity in list_entities:
         stop_time_update = entity.trip_update.stop_time_update[0]
@@ -96,12 +95,42 @@ def get_markers_for_list_entities(list_entities, stops_df):
         dt = dt - datetime.timedelta(hours=UTC_OFFSET)
         departure_time = dt.strftime('%H:%M')
 
+        closest_stop_id = find_closest_stop(stops_df, 
+                (current_location['lat'], current_location['lng']),
+                get_stop_id_list(entity))
+
+        closest_stop_time = get_closest_stop_time(closest_stop_id, entity)
+        closest_stop_name = get_stop_name(closest_stop_id, stops_df)
+
         lat = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_lat'].iloc[0]
         lon = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_lon'].iloc[0]
         stop_name = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_name'].iloc[0].replace('[ X Stop ]', '')
-        marker.append((lat, lon, stop_name, departure_time, delay, uncertainty))
+        marker.append((lat, lon, stop_name, departure_time, delay, uncertainty, closest_stop_time, closest_stop_name))
 
     return marker
 
-def main():
-    pass
+def get_closest_stop_time(closest_stop_id, entity):
+
+    for stop_time_update in entity.trip_update.stop_time_update:
+        if stop_time_update.stop_id == closest_stop_id:
+            return(datetime.datetime.fromtimestamp(stop_time_update.departure.time))
+
+def get_stop_name(stop_id, stops_df):
+    return(stops_df.loc[stops_df['stop_id'] == 10277]['stop_name'].values[0])
+
+def find_closest_stop(stops_df, latlon, stop_id_list):
+    lat = latlon[0]
+    lon = latlon[1]
+    stops_df = stops_df[stops_df['stop_id'].isin(stop_id_list)]
+    stops_df['minimum_distance'] = (stops_df['stop_lat'] - lat)**2 + (stops_df['stop_lon'] - lon)**2
+    
+    closest_stop_id = stops_df.loc[stops_df['minimum_distance'].argmin()]['stop_id']
+    
+    return closest_stop_id
+
+
+def get_stop_id_list(entity):
+    stop_id_list = []
+    for sq in entity.trip_update.stop_time_update:
+        stop_id_list.append(int(sq.stop_id))
+    return stop_id_list
