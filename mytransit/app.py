@@ -27,19 +27,23 @@ def update():
 @app.route("/data")
 def data():
     
-    current_location = json.loads(request.args.get('pos'), "{u'lat': 39.7433814, u'lng': -104.98910989999999}")
+    try:
+        current_location = json.loads(request.args.get('pos'))
+    except:
+        current_location = {u'lat': 39.7433814, u'lng': -104.98910989999999}
     print(current_location)
     print("before gtfs - {}".format(datetime.datetime.now()))
     get_gtfs_data()
     print("after gtfs - {}".format(datetime.datetime.now()))
 
     print("before csv - {}".format(datetime.datetime.now()))
-    bus20_east_df, bus20_west_df, stops_df = get_bus_data_from_csv()
+    bus20_east_df, bus20_west_df, all_buses_df, stops_df = get_bus_data_from_csv()
     print("after csv - {}".format(datetime.datetime.now()))
 
     print("before list - {}".format(datetime.datetime.now()))
     bus20_east_list = convert_df_to_list(bus20_east_df)
     bus20_west_list = convert_df_to_list(bus20_west_df)
+    all_buses_list = convert_df_to_list(all_buses_df)
     print("after list - {}".format(datetime.datetime.now()))
 
     print("before header - {}".format(datetime.datetime.now()))
@@ -50,6 +54,7 @@ def data():
     print("before entities - {}".format(datetime.datetime.now()))
     l1 = get_entities(bus20_east_list)
     l2 = get_entities(bus20_west_list)
+    l3 = get_entities(all_buses_list)
     print("after entities - {}".format(datetime.datetime.now()))
 
     bus_20_east_dict = {'/static/transit-east.png': get_markers_for_list_entities(l1, stops_df, current_location),
@@ -57,7 +62,9 @@ def data():
     bus_20_west_dict = {'/static/transit-west.png': get_markers_for_list_entities(l2, stops_df, current_location),
                  }
 
-    markers = merge_two_dicts(bus_20_east_dict, bus_20_west_dict)
+    all_buses_dict = {'/static/transit.png': get_markers_for_list_entities(l3, stops_df, current_location)}
+
+    markers = merge_two_dicts(all_buses_dict, merge_two_dicts(bus_20_east_dict, bus_20_west_dict))
 
     lat_lng = {'lat': 39.7392, 'lng': -104.9903} # Denver downtown
 

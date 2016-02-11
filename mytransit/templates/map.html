@@ -109,6 +109,14 @@ function render()
 
     }
 
+function getInfoCallback(map, content) {
+    var infowindow = new google.maps.InfoWindow({content: content});
+    return function() {
+            infowindow.setContent(content);
+            infowindow.open(map, this);
+        };
+}
+
 function continueRender()
     {
     var bounds = new google.maps.LatLngBounds();
@@ -136,20 +144,20 @@ function continueRender()
         var contentString = '<div id="content">'+
       '<div id="siteNotice">'+
       '</div>'+
-      '<h1 id="firstHeading" class="firstHeading">Route 20</h1>'+
+      '<h1 id="firstHeading" class="firstHeading">'+ stop_data[8] +'</h1>'+
       '<div id="bodyContent">'+
-      '<p>headed <b>East</b>'+
+      '<p><b>' + stop_data[9] + '</b>'+
       '.<br>Expected to depart <b>'+
       stop_data[2]+
       '</b> at <b>'+
       stop_data[3]+
+      //'</b>.'+
+      //'.<br>Expected to depart <b>'+
+      //stop_data[7]+
+      //'</b> at <b>'+
+      //stop_data[6]+
       '</b>.';
-      '.<br>Expected to depart <b>'+
-      stop_data[6]+
-      '</b> at <b>'+
-      stop_data[7]+
-      '</b>.';
-      if(stop_data[4]!==0) {
+      if(stop_data[4] !== 0) {
           console.log(stop_data[4]);
           console.log(stop_data[4]==0);
         contentString = contentString + '<br>Delay - '+
@@ -174,9 +182,8 @@ function continueRender()
             icon: image,
             title: "Bus 20"
         });
-        marker.addListener('click', function() {
-            infowindow.open(map, marker);
-          });
+        google.maps.event.addListener(marker, 'click',
+                getInfoCallback(map, contentString));
 
         // gmarkers.push(marker);
     };
@@ -186,20 +193,20 @@ function continueRender()
         var contentString = '<div id="content">'+
       '<div id="siteNotice">'+
       '</div>'+
-      '<h1 id="firstHeading" class="firstHeading">Route 20</h1>'+
+      '<h1 id="firstHeading" class="firstHeading">'+ stop_data[8] +'</h1>'+
       '<div id="bodyContent">'+
-      '<p>headed <b>West</b>'+
+      '<p><b>' + stop_data[9] + '</b>'+
       '.<br>Expected to depart <b>'+
       stop_data[2]+
       '</b> at <b>'+
       stop_data[3]+
+      //'</b>.'+
+      //'.<br>Expected to depart <b>'+
+      //stop_data[7]+
+      //'</b> at <b>'+
+      //stop_data[6]+
       '</b>.';
-      '.<br>Expected to depart <b>'+
-      stop_data[6]+
-      '</b> at <b>'+
-      stop_data[7]+
-      '</b>.';
-      if(stop_data[4] == 0) {
+      if(stop_data[4] !== 0) {
         contentString = contentString + '<br>Delay - '+
       stop_data[4]+
       '<br>Uncertainty - '+
@@ -210,9 +217,6 @@ function continueRender()
       '</div>'+
       '</div>';
 
-        var infowindow = new google.maps.InfoWindow({
-            content: contentString
-          });
         latLng = new google.maps.LatLng(stop_data[0], stop_data[1]);
         bounds.extend(latLng);
         var marker = new google.maps.Marker({
@@ -221,14 +225,56 @@ function continueRender()
             icon: image,
             title: "Bus 20"
         });
-        marker.addListener('click', function() {
-            infowindow.open(map, marker);
-          });
+        google.maps.event.addListener(marker, 'click',
+                getInfoCallback(map, contentString));
 
         // gmarkers.push(marker);
     };
     // zoom the map to show all the markers, may not be desirable.
     // map.fitBounds(bounds);
+
+    for (var i = 0, length = data.markers["/static/transit.png"].length; i < length; i++) {
+        var stop_data = data.markers["/static/transit.png"][i]
+        var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<h1 id="firstHeading" class="firstHeading">'+ stop_data[8] +'</h1>'+
+      '<div id="bodyContent">'+
+      '<p><b>' + stop_data[9] + '</b>'+
+      '.<br>Expected to depart <b>'+
+      stop_data[2]+
+      '</b> at <b>'+
+      stop_data[3]+
+      // '</b>.'+
+      // '.<br>Expected to depart <b>'+
+      // stop_data[7]+
+      // '</b> at <b>'+
+      // stop_data[6]+
+      '</b>.';
+      if(stop_data[4] !== 0) {
+        contentString = contentString + '<br>Delay - '+
+      stop_data[4]+
+      '<br>Uncertainty - '+
+      stop_data[5];
+        }
+        contentString = contentString+
+      '</p>'+
+      '</div>'+
+      '</div>';
+
+        latLng = new google.maps.LatLng(stop_data[0], stop_data[1]);
+        bounds.extend(latLng);
+        var marker = new google.maps.Marker({
+            position: latLng,
+            map: map,
+            icon: image,
+            opacity: .375,
+        });
+        google.maps.event.addListener(marker, 'click',
+                getInfoCallback(map, contentString));
+
+        // gmarkers.push(marker);
+    };
 
     console.log(data)
 

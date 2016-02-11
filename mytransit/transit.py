@@ -8,6 +8,8 @@ import os
 import os.path
 import datetime
 
+UTC_OFFSET = int(os.getenv('OFFSET', 7))
+
 def get_gtfs_data(force=False):
     url = 'http://www.rtd-denver.com/GoogleFeeder/google_transit_Jan16_Runboard.zip'
     headers_file = 'google_feeder_headers.txt'
@@ -26,7 +28,7 @@ def get_gtfs_data(force=False):
                     rerequest=True
             else:
                 print("File unchanged!")
-                if not os.path.isfile('stops.txt'):
+                if not os.path.isfile('stops.txt') or not os.path.isfile('trips.txt'):
                     rerequest = True
                     print("Files missing")
 
@@ -51,7 +53,7 @@ def get_bus_data_from_csv():
     bus20_east_df = bus20_df[bus20_df['trip_headsign']=='Anschutz Medical Campus']
     bus20_west_df = bus20_df[bus20_df['trip_headsign']=='Denver West']
 
-    return(bus20_east_df, bus20_west_df, stops_df)
+    return(bus20_east_df, bus20_west_df, trips_df, stops_df)
 
 def convert_df_to_list(df):
 
@@ -86,13 +88,15 @@ def get_entities(bus_list):
 
     return(list_entities)
 
-def get_markers_for_list_entities(list_entities, stops_df, current_location):
+def get_markers_for_list_entities(list_entities, stops_df, current_location, trips_df=None):
+    if trips_df is None:
+        trips_df = pd.read_csv('trips.txt')
+
     marker = []
     for entity in list_entities:
         stop_time_update = entity.trip_update.stop_time_update[0]
         delay = stop_time_update.departure.delay
         uncertainty = stop_time_update.departure.uncertainty
-        UTC_OFFSET = 7
         dt = datetime.datetime.fromtimestamp(stop_time_update.departure.time)
         dt = dt - datetime.timedelta(hours=UTC_OFFSET)
         departure_time = dt.strftime('%H:%M')
@@ -104,18 +108,24 @@ def get_markers_for_list_entities(list_entities, stops_df, current_location):
         closest_stop_time = get_closest_stop_time(closest_stop_id, entity)
         closest_stop_name = get_stop_name(closest_stop_id, stops_df)
 
+        trip_id = entity.trip_update.trip.trip_id
+        route_id, route_name = get_bus_name(trip_id, trips_df)
+
         lat = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_lat'].iloc[0]
         lon = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_lon'].iloc[0]
         stop_name = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_name'].iloc[0].replace('[ X Stop ]', '')
-        marker.append((lat, lon, stop_name, departure_time, delay, uncertainty, closest_stop_time, closest_stop_name))
+        marker.append((lat, lon, stop_name, departure_time, delay, uncertainty, closest_stop_time, closest_stop_name, route_id, route_name))
 
     return marker
 
 def get_closest_stop_time(closest_stop_id, entity):
 
     for stop_time_update in entity.trip_update.stop_time_update:
-        if stop_time_update.stop_id == closest_stop_id:
-            return(datetime.datetime.fromtimestamp(stop_time_update.departure.time))
+        if int(stop_time_update.stop_id) == int(closest_stop_id):
+            dt = datetime.datetime.fromtimestamp(stop_time_update.departure.time)
+            dt = dt - datetime.timedelta(hours=UTC_OFFSET)
+            departure_time = dt.strftime('%H:%M')
+            return(departure_time)
 
 def get_stop_name(stop_id, stops_df):
     return(stops_df.loc[stops_df['stop_id'] == 10277]['stop_name'].values[0])
@@ -130,6 +140,9 @@ def find_closest_stop(stops_df, latlon, stop_id_list):
     
     return closest_stop_id
 
+def get_bus_name(trip_id, trips_df):
+    return(trips_df[trips_df['trip_id'] == int(trip_id)]['route_id'].values[0],
+            trips_df[trips_df['trip_id'] == int(trip_id)]['trip_headsign'].values[0])
 
 def get_stop_id_list(entity):
     stop_id_list = []
