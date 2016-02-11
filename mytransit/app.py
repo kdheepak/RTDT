@@ -72,7 +72,15 @@ def data():
 def mapview():
     # creating a map in the view
 
-    return render_template('map.html', json_api_key=os.getenv('JSON_API'))
+    headers = get_real_time_data_request_response(header=True)
+    last_modified = headers['Last-Modified']
+
+    UTC_OFFSET = 7
+    dt = datetime.datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S GMT')
+    dt = dt - datetime.timedelta(hours=UTC_OFFSET)
+    last_modified = dt.strftime('%a, %d %b %Y %H:%M:%S MST')
+
+    return render_template('map.html', last_modified=last_modified, json_api_key=os.getenv('JSON_API'))
 
 if __name__ == "__main__":
     app.debug = os.getenv('DEBUG', False)

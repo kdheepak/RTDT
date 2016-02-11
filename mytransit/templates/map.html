@@ -10,6 +10,15 @@
         margin: 0;
         padding: 0;
       }
+  div#info { width:100%; position:absolute; overflow:hidden; text-align:center; top:0;
+    left:0; 
+    filter:alpha(opacity=60);
+    -moz-opacity:0.6;
+    -khtml-opacity: 0.6;
+    opacity: 0.6;
+    background-color:white;
+    padding:2px;
+  }
       #map {
         height: 100%;
       }
@@ -210,7 +219,7 @@ render()
     </script>
 
     <div id="map"></div>
-
+    <div id="info" class="lightbox"> Last updated on {{ last_modified }} </div>
 
   </body>
 </html>
