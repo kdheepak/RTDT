@@ -124,6 +124,7 @@ var data = []
 var gmarkers = [];
 var intervalNumber = 0;
 var firstUpdate = 1;
+var removemarkerslist = [];
 
 function render()
     {
@@ -146,9 +147,9 @@ function getInfoCallback(map, content) {
 }
 
 
-function removeMarkers() {
-    for(var i = 0; i < gmarkers.length; i++) {
-        gmarkers[i].setMap(null);
+function removeMarkers(removemarkerslist) {
+    for(var i = 0; i < removemarkerslist.length; i++) {
+        removemarkerslist[i].setMap(null);
     }
 }
 
@@ -158,7 +159,11 @@ function continueRender()
 
     bounds.extend(myPos)
 
-    removeMarkers()
+    removemarkerslist = []
+
+    for(var i = 0; i < gmarkers.length; i++) {
+        removemarkerslist.push(gmarkers[i])
+    }
 
     var image = {
         url: '/static/transit.jpg',
@@ -230,6 +235,7 @@ for (var j = 0, jlength = data.routes.length; j < jlength; j++) {
         gmarkers.push(marker);
     };
 
+    removeMarkers(removemarkerslist)
 
     $(document).trigger('render_complete');
 
@@ -284,7 +290,7 @@ info: 'bus_list'
 function updateData(sel) {
 
     firstUpdate = 1;
-    setInterval(function() { getData(sel); }, 5000);
+    setInterval(function() { getData(sel); }, 10000);
 
 }
 
