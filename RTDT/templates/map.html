@@ -67,6 +67,7 @@ mixpanel.init("816ed6a8fcec6531046e86f537e9f09c");</script><!-- end Mixpanel -->
 
 var map = null
 var pos = null
+var myPos = null
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -83,6 +84,15 @@ function initMap() {
         lng: position.coords.longitude
       };
       map.setCenter(pos);
+        myPos = new google.maps.LatLng(pos['lat'], pos['lng']);
+        latLng = new google.maps.LatLng(pos['lat'], pos['lng']);
+        var marker = new google.maps.Marker({
+            position: latLng,
+            map: map,
+            animation: google.maps.Animation.DROP,
+            opacity: 1,
+            optimized: false,
+        });
       console.log("init_complete")
         $(document).trigger('init_complete');
     }, function() {
@@ -138,6 +148,8 @@ function continueRender()
     {
     var bounds = new google.maps.LatLngBounds();
 
+    bounds.extend(myPos)
+
     var image = {
         url: '/static/transit.jpg',
         // This marker is 20 pixels wide by 32 pixels high.
@@ -165,7 +177,7 @@ function continueRender()
         var contentString = '<div id="content">'+
       '<div id="siteNotice">'+
       '</div>'+
-      '<h1 id="firstHeading" class="firstHeading">'+ stop_data[8] + ' ' + stop_data[9] + ' </h1>'+
+      '<h3 id="firstHeading" class="firstHeading">'+ stop_data[8] + ' ' + stop_data[9] + ' </h3>'+
       '<div id="bodyContent">'+
       'Expected to depart <b>'+
       stop_data[2]+
@@ -195,14 +207,15 @@ function continueRender()
             map: map,
             animation: google.maps.Animation.DROP,
             icon: image,
-            // opacity: 1,
-            // optimized: false,
+            opacity: 1,
+            optimized: false,
         });
         // getInfoCallback(map, contentString)();
         google.maps.event.addListener(marker, 'click',
                 getInfoCallback(map, contentString));
     };
 
+    map.fitBounds(bounds);
 
     $(document).trigger('render_complete');
 
