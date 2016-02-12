@@ -78,7 +78,7 @@ def get_entities(bus_list):
 
     feed = gtfs_realtime_pb2.FeedMessage()
     content = get_real_time_data_request_response()
-    feed.ParseFromString(r.content)
+    feed.ParseFromString(content)
 
     list_entities = []
 
