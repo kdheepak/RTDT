@@ -9,7 +9,7 @@ import os.path
 import datetime
 
 UTC_OFFSET = int(os.getenv('OFFSET', 7))
-
+DEFAULT_LOCATION = {u'lat': 39.7433814, u'lng': -104.98910989999999}
 
 def get_gtfs_data(force=False):
     url = 'http://www.rtd-denver.com/GoogleFeeder/google_transit_Jan16_Runboard.zip'
@@ -42,21 +42,6 @@ def get_gtfs_data(force=False):
             print(last_modified, file=f)
         return z
                 
-
-def get_bus_data_from_csv():
-
-    stops_df = pd.read_csv('stops.txt')
-    trips_df = pd.read_csv('trips.txt')
-
-    bus20_df = trips_df[trips_df['route_id']=='20']
-    bus20_df = bus20_df[bus20_df['service_id']=='WK']
-
-    bus20_east_df = bus20_df[bus20_df['trip_headsign']=='Anschutz Medical Campus']
-    bus20_west_df = bus20_df[bus20_df['trip_headsign']=='Denver West']
-
-
-    return(bus20_east_df, bus20_west_df, trips_df, stops_df)
-
 def convert_df_to_list(df):
 
     # bus20_east_list = [str(i) for i in bus20_east_df['trip_id'].tolist()]
@@ -88,7 +73,7 @@ def get_entities(bus_list):
 
     return(list_entities)
 
-def get_markers_for_list_entities(list_entities, stops_df, current_location, trips_df=None):
+def get_markers_for_list_entities(list_entities, stops_df, current_location=DEFAULT_LOCATION, trips_df=None):
     if trips_df is None:
         trips_df = pd.read_csv('trips.txt')
 
@@ -157,13 +142,11 @@ def get_bus_list(trips_df):
     return(bl.tolist())
 
 
-def get_all_current_position_markers(route, current_location):
+def get_all_current_position_markers(route, current_location=DEFAULT_LOCATION):
     stops_df = pd.read_csv('stops.txt')
-    trips_df = pd.read_csv('trips.txt')
 
     l = get_currently_active_trips(route)
-    markers = {'/static/transit.png': get_markers_for_list_entities(l,  stops_df, current_location)}
-
+    markers = {route: get_markers_for_list_entities(l,  stops_df, current_location)}
     data = {'markers': markers}
 
     return(data)

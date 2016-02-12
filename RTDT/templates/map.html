@@ -123,6 +123,7 @@ function handleLocationError(browserHasGeolocation) {
 var data = []
 var gmarkers = [];
 var intervalNumber = 0;
+var firstUpdate = 1;
 
 function render()
     {
@@ -144,11 +145,20 @@ function getInfoCallback(map, content) {
         };
 }
 
+
+function removeMarkers() {
+    for(var i = 0; i < gmarkers.length; i++) {
+        gmarkers[i].setMap(null);
+    }
+}
+
 function continueRender()
     {
     var bounds = new google.maps.LatLngBounds();
 
     bounds.extend(myPos)
+
+    removeMarkers()
 
     var image = {
         url: '/static/transit.jpg',
@@ -168,11 +178,15 @@ function continueRender()
         type: 'poly'
       };
 
-    for (var i = 0, length = data.markers["/static/transit.png"].length; i < length; i++) {
+for (var j = 0, jlength = data.routes.length; j < jlength; j++) {
 
-        var stop_data = data.markers["/static/transit.png"][i]
+    var route = data.routes[j];
 
-        console.log(stop_data)
+    for (var i = 0, length = data.markers[route].length; i < length; i++) {
+
+        var stop_data = data.markers[route][i];
+
+        console.log(stop_data);
 
         var contentString = '<div id="content">'+
       '<div id="siteNotice">'+
@@ -205,7 +219,6 @@ function continueRender()
         var marker = new google.maps.Marker({
             position: latLng,
             map: map,
-            animation: google.maps.Animation.DROP,
             icon: image,
             opacity: 1,
             optimized: false,
@@ -213,11 +226,19 @@ function continueRender()
         // getInfoCallback(map, contentString)();
         google.maps.event.addListener(marker, 'click',
                 getInfoCallback(map, contentString));
+
+        gmarkers.push(marker);
     };
 
-    map.fitBounds(bounds);
 
     $(document).trigger('render_complete');
+
+    if (firstUpdate == 1) {
+        map.fitBounds(bounds);
+        firstUpdate = 0
+    }
+
+}
 
 }
 
@@ -259,7 +280,13 @@ info: 'bus_list'
 })
 
 
-// setInterval(render, 5000);
+
+function updateData(sel) {
+
+    firstUpdate = 1;
+    setInterval(function() { getData(sel); }, 5000);
+
+}
 
 function getData(sel) {
 $.getJSON('/data',{
@@ -275,7 +302,7 @@ $.getJSON('/data',{
 
 </script>
 
-  <select class="form-control" id='routename' onchange="getData(this)">
+<select class="form-control" id='routename' onchange="updateData(this)">
   </select>
 
     <div id="map" data-tap-disabled="true" ></div>

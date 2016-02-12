@@ -2,11 +2,7 @@ from flask import Flask, render_template, jsonify, request, g, session
 from flask_googlemaps import GoogleMaps
 from flask_googlemaps import Map
 
-from transit import get_bus_data_from_csv
-from transit import convert_df_to_list
-from transit import get_entities
 from transit import get_gtfs_data
-from transit import get_markers_for_list_entities
 from transit import get_real_time_data_request_response
 from transit import get_bus_list
 from transit import get_all_current_position_markers
@@ -52,7 +48,9 @@ def data():
         route = request.args.get('data')
         print(route)
         current_location = DEFAULT_LOCATION
-        return(json.dumps(get_all_current_position_markers(route, current_location)))
+        data = get_all_current_position_markers(route, current_location)
+        data['routes'] = [route]
+        return(json.dumps(data))
 
 
 @app.route("/")
