@@ -10,10 +10,6 @@ import datetime
 
 UTC_OFFSET = int(os.getenv('OFFSET', 7))
 
-feed = gtfs_realtime_pb2.FeedMessage()
-r = requests.get('http://www.rtd-denver.com/google_sync/TripUpdate.pb', auth=(os.getenv('RTD_USERNAME'), os.getenv('RTD_PASSWORD')))
-feed.ParseFromString(r.content)
-
 
 def get_gtfs_data(force=False):
     url = 'http://www.rtd-denver.com/GoogleFeeder/google_transit_Jan16_Runboard.zip'
@@ -79,6 +75,10 @@ def get_real_time_data_request_response(header=False):
             return None
 
 def get_entities(bus_list):
+
+    feed = gtfs_realtime_pb2.FeedMessage()
+    content = get_real_time_data_request_response()
+    feed.ParseFromString(r.content)
 
     list_entities = []
 
