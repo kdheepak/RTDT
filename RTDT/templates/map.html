@@ -4,6 +4,7 @@
     <title>Bus Locations</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=yes">
     <meta charset="utf-8">
+
     <style>
       html, body {
         cursor: pointer;
@@ -49,6 +50,15 @@ mixpanel.init("816ed6a8fcec6531046e86f537e9f09c");</script><!-- end Mixpanel -->
   $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 </script>
   </script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
     <script>
 // Note: This example requires that you consent to location sharing when
 // prompted by your browser. If you see the error "The Geolocation service
@@ -252,7 +262,7 @@ $.getJSON('/data',{
 
 </script>
 
-  <select id='routename' onchange="getData(this)">
+  <select class="form-control" id='routename' onchange="getData(this)">
   </select>
 
     <div id="map" data-tap-disabled="true" ></div>
