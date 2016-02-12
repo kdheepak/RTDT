@@ -11,7 +11,7 @@
         margin: 0;
         padding: 0;
       }
-  div#info { width:100%; position:absolute; overflow:hidden; text-align:center; top:0;
+  div#info { width:100%; position:absolute; overflow:hidden; text-align:center; bottom:0;
     left:0; 
     filter:alpha(opacity=60);
     -moz-opacity:0.6;
@@ -22,10 +22,10 @@
   }
   div#loading { width:100%; position:absolute; overflow:hidden; text-align:center; bottom:0;
     left:0;
-    filter:alpha(opacity=60);
-    -moz-opacity:0.6;
-    -khtml-opacity: 0.6;
-    opacity: 0.6;
+    filter:alpha(opacity=100);
+    -moz-opacity:1;
+    -khtml-opacity:1 
+    opacity: 1;
     background-color:white;
     padding:4px;
   }
@@ -106,22 +106,14 @@ var intervalNumber = 0;
 
 function render()
     {
-    setTimeout(function(){
-        //do what you need here
-    }, 10000);
         console.log('Finding positions')
-        console.log('Waiting 10 seconds')
         console.log(pos)
 
         $.getJSON('/data',{
-        pos: JSON.stringify(pos)
-      } , function(d) {
-            data = d
-        })
-    .done(function( data ) {
-        continueRender()
-    });
-
+        info: 'set_position',
+        data: JSON.stringify(pos)
+      } )
+       
     }
 
 function getInfoCallback(map, content) {
@@ -154,109 +146,18 @@ function continueRender()
         type: 'poly'
       };
 
-    for (var i = 0, length = data.markers["/static/transit-east.png"].length; i < length; i++) {
-        var stop_data = data.markers["/static/transit-east.png"][i]
-        var contentString = '<div id="content">'+
-      '<div id="siteNotice">'+
-      '</div>'+
-      '<h1 id="firstHeading" class="firstHeading">'+ stop_data[8] +'</h1>'+
-      '<div id="bodyContent">'+
-      '<p><b>' + stop_data[9] + '</b>'+
-      '.<br>Expected to depart <b>'+
-      stop_data[2]+
-      '</b> at <b>'+
-      stop_data[3]+
-      //'</b>.'+
-      //'.<br>Expected to depart <b>'+
-      //stop_data[7]+
-      //'</b> at <b>'+
-      //stop_data[6]+
-      '</b>.';
-      if(stop_data[4] !== 0) {
-          console.log(stop_data[4]);
-          console.log(stop_data[4]==0);
-        contentString = contentString + '<br>Delay - '+
-      stop_data[4]+
-      '<br>Uncertainty - '+
-      stop_data[5];
-        }
-        contentString = contentString+
-      '</p>'+
-      '</div>'+
-      '</div>';
-
-        var infowindow = new google.maps.InfoWindow({
-            content: contentString
-          });
-        var location = data.markers["/static/transit-east.png"][i]
-        latLng = new google.maps.LatLng(location[0], location[1]);
-        bounds.extend(latLng);
-        var marker = new google.maps.Marker({
-            position: latLng,
-            map: map,
-            icon: image,
-            title: "Bus 20"
-        });
-        google.maps.event.addListener(marker, 'click',
-                getInfoCallback(map, contentString));
-
-        // gmarkers.push(marker);
-    };
-
-    for (var i = 0, length = data.markers["/static/transit-west.png"].length; i < length; i++) {
-        var stop_data = data.markers["/static/transit-west.png"][i]
-        var contentString = '<div id="content">'+
-      '<div id="siteNotice">'+
-      '</div>'+
-      '<h1 id="firstHeading" class="firstHeading">'+ stop_data[8] +'</h1>'+
-      '<div id="bodyContent">'+
-      '<p><b>' + stop_data[9] + '</b>'+
-      '.<br>Expected to depart <b>'+
-      stop_data[2]+
-      '</b> at <b>'+
-      stop_data[3]+
-      //'</b>.'+
-      //'.<br>Expected to depart <b>'+
-      //stop_data[7]+
-      //'</b> at <b>'+
-      //stop_data[6]+
-      '</b>.';
-      if(stop_data[4] !== 0) {
-        contentString = contentString + '<br>Delay - '+
-      stop_data[4]+
-      '<br>Uncertainty - '+
-      stop_data[5];
-        }
-        contentString = contentString+
-      '</p>'+
-      '</div>'+
-      '</div>';
-
-        latLng = new google.maps.LatLng(stop_data[0], stop_data[1]);
-        bounds.extend(latLng);
-        var marker = new google.maps.Marker({
-            position: latLng,
-            map: map,
-            icon: image,
-            title: "Bus 20"
-        });
-        google.maps.event.addListener(marker, 'click',
-                getInfoCallback(map, contentString));
-
-        // gmarkers.push(marker);
-    };
-    // zoom the map to show all the markers, may not be desirable.
-    // map.fitBounds(bounds);
-
     for (var i = 0, length = data.markers["/static/transit.png"].length; i < length; i++) {
+
         var stop_data = data.markers["/static/transit.png"][i]
+
+        console.log(stop_data)
+
         var contentString = '<div id="content">'+
       '<div id="siteNotice">'+
       '</div>'+
-      '<h1 id="firstHeading" class="firstHeading">'+ stop_data[8] +'</h1>'+
+      '<h1 id="firstHeading" class="firstHeading">'+ stop_data[8] + ' ' + stop_data[9] + ' </h1>'+
       '<div id="bodyContent">'+
-      '<p><b>' + stop_data[9] + '</b>'+
-      '.<br>Expected to depart <b>'+
+      'Expected to depart <b>'+
       stop_data[2]+
       '</b> at <b>'+
       stop_data[3]+
@@ -282,22 +183,29 @@ function continueRender()
         var marker = new google.maps.Marker({
             position: latLng,
             map: map,
+            animation: google.maps.Animation.DROP,
             icon: image,
-            opacity: .375,
-            optimized: false,
+            // opacity: 1,
+            // optimized: false,
         });
-            getInfoCallback(map, contentString)();
+        // getInfoCallback(map, contentString)();
         google.maps.event.addListener(marker, 'click',
                 getInfoCallback(map, contentString));
-
-
-        // gmarkers.push(marker);
     };
 
-    console.log(data)
-        $(document).trigger('render_complete');
+
+    $(document).trigger('render_complete');
 
 }
+
+function getInfoCallback(map, content) {
+    var infowindow = new google.maps.InfoWindow({content: content});
+    return function() {
+            infowindow.setContent(content);
+            infowindow.open(map, this);
+        };
+}
+
 
 function removebox() {
 
@@ -306,18 +214,51 @@ function removebox() {
     div.style.visibility = 'hidden';
     // OR
     div.style.display = 'none';
+
+
 }
 
 $(document).bind('init_complete', render);
 $(document).bind('render_complete', removebox);
 
+$.getJSON('/data',{
+info: 'bus_list'
+} , function(d) {
+    d
+    select = document.getElementById('routename');
+
+    for (var i = 0, length = d.bus_list.length; i < length; i++){
+        var opt = document.createElement('option');
+                opt.value = d.bus_list[i];
+                opt.innerHTML = d.bus_list[i];
+                select.appendChild(opt);
+    }
+})
+
+
 // setInterval(render, 5000);
 
-    </script>
+function getData(sel) {
+$.getJSON('/data',{
+    info : 'request',
+    data : sel.value
+  }, function(d) {
+            data = d
+        })
+.done(function( data ) {
+        continueRender()
+    });
+}
+
+</script>
+
+  <select id='routename' onchange="getData(this)">
+  </select>
 
     <div id="map" data-tap-disabled="true" ></div>
     <div id="info" class="lightbox"> Last updated on {{ last_modified }} </div>
     <div id="loading" class="lightbox"> Loading real time data ... </div>
+
 
   </body>
 </html>

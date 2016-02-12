@@ -10,6 +10,11 @@ import datetime
 
 UTC_OFFSET = int(os.getenv('OFFSET', 7))
 
+feed = gtfs_realtime_pb2.FeedMessage()
+r = requests.get('http://www.rtd-denver.com/google_sync/TripUpdate.pb', auth=(os.getenv('RTD_USERNAME'), os.getenv('RTD_PASSWORD')))
+feed.ParseFromString(r.content)
+
+
 def get_gtfs_data(force=False):
     url = 'http://www.rtd-denver.com/GoogleFeeder/google_transit_Jan16_Runboard.zip'
     headers_file = 'google_feeder_headers.txt'
@@ -53,6 +58,7 @@ def get_bus_data_from_csv():
     bus20_east_df = bus20_df[bus20_df['trip_headsign']=='Anschutz Medical Campus']
     bus20_west_df = bus20_df[bus20_df['trip_headsign']=='Denver West']
 
+
     return(bus20_east_df, bus20_west_df, trips_df, stops_df)
 
 def convert_df_to_list(df):
@@ -73,12 +79,6 @@ def get_real_time_data_request_response(header=False):
             return None
 
 def get_entities(bus_list):
-
-    feed = gtfs_realtime_pb2.FeedMessage()
-
-    content = get_real_time_data_request_response()
-
-    feed.ParseFromString(content)
 
     list_entities = []
 
@@ -149,3 +149,39 @@ def get_stop_id_list(entity):
     for sq in entity.trip_update.stop_time_update:
         stop_id_list.append(int(sq.stop_id))
     return stop_id_list
+
+
+def get_bus_list(trips_df):
+    trips_df['unique_route_id'] = 'Route ' + trips_df['route_id']+': '+trips_df['trip_headsign']
+    bl = trips_df['unique_route_id'].unique()
+    return(bl.tolist())
+
+
+def get_all_current_position_markers(route, current_location):
+    stops_df = pd.read_csv('stops.txt')
+    trips_df = pd.read_csv('trips.txt')
+
+    l = get_currently_active_trips(route)
+    markers = {'/static/transit.png': get_markers_for_list_entities(l,  stops_df, current_location)}
+
+    data = {'markers': markers}
+
+    return(data)
+
+def parse_route_name(route):
+    route_id = route.split(':')[0].replace('Route ', '').strip(' ')
+    trip_headsign = route.split(':')[1].strip(' ')
+    
+    return route_id, trip_headsign
+
+def get_trip_id(route, trips_df):
+    trips_df['unique_route_id'] = 'Route ' + trips_df['route_id']+': '+trips_df['trip_headsign']
+    route_id, trip_headsign = parse_route_name(route)
+    trips_df = trips_df[trips_df['route_id'] == route_id]
+    trips_df = trips_df[trips_df['trip_headsign'] == trip_headsign]
+    return trips_df['trip_id'].tolist()
+
+def get_currently_active_trips(route):
+    trips_df = pd.read_csv('trips.txt')
+    total_trip_list = [str(item) for item in get_trip_id(route, trips_df)]
+    return get_entities(total_trip_list)
