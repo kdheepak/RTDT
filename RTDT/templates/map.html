@@ -153,18 +153,7 @@ function removeMarkers(removemarkerslist) {
     }
 }
 
-function continueRender()
-    {
-    var bounds = new google.maps.LatLngBounds();
-
-    bounds.extend(myPos)
-
-    removemarkerslist = []
-
-    for(var i = 0; i < gmarkers.length; i++) {
-        removemarkerslist.push(gmarkers[i])
-    }
-
+function drawRoute(route, bounds){
     var image = {
         url: '/static/transit.jpg',
         // This marker is 20 pixels wide by 32 pixels high.
@@ -182,10 +171,6 @@ function continueRender()
         coords: [1, 1, 1, 20, 18, 20, 18, 1],
         type: 'poly'
       };
-
-for (var j = 0, jlength = data.routes.length; j < jlength; j++) {
-
-    var route = data.routes[j];
 
     for (var i = 0, length = data.markers[route].length; i < length; i++) {
 
@@ -234,17 +219,28 @@ for (var j = 0, jlength = data.routes.length; j < jlength; j++) {
 
         gmarkers.push(marker);
     };
-
-    removeMarkers(removemarkerslist)
-
-    $(document).trigger('render_complete');
-
-    if (firstUpdate == 1) {
-        map.fitBounds(bounds);
-        firstUpdate = 0
-    }
-
 }
+
+function continueRender()
+    {
+    var bounds = new google.maps.LatLngBounds();
+
+    bounds.extend(myPos)
+
+    for (var j = 0, jlength = data.routes.length; j < jlength; j++) {
+
+        var route = data.routes[j];
+
+        drawRoute(route, bounds)
+
+        $(document).trigger('render_complete');
+
+        if (firstUpdate == 1) {
+            map.fitBounds(bounds);
+            firstUpdate = 0
+        }
+
+    }
 
 }
 
