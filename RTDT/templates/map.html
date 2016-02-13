@@ -215,13 +215,12 @@ function drawRoute(route, bounds){
         });
         // getInfoCallback(map, contentString)();
         google.maps.event.addListener(marker, 'click',
-                getInfoCallback(map, contentString));
+                getInfoCallback(map, contentString, stop_data[10]));
 
         gmarkers.push(marker);
 
         // Add path
 
-        plotPath(stop_data[10])
 
     };
 }
@@ -266,11 +265,12 @@ function continueRender()
 
 }
 
-function getInfoCallback(map, content) {
+function getInfoCallback(map, content, trip_id) {
     var infowindow = new google.maps.InfoWindow({content: content});
     return function() {
             infowindow.setContent(content);
             infowindow.open(map, this);
+            plotPath(trip_id)
         };
 }
 
