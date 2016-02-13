@@ -273,6 +273,11 @@ info: 'bus_list'
     d
     select = document.getElementById('routename');
 
+    var opt = document.createElement('option');
+    opt.value = "None"
+    opt.innerHTML = "------ SELECT ROUTE -----";
+    select.appendChild(opt);
+
     for (var i = 0, length = d.bus_list.length; i < length; i++){
         var opt = document.createElement('option');
                 opt.value = d.bus_list[i];

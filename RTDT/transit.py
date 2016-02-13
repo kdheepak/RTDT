@@ -137,6 +137,20 @@ def get_stop_id_list(entity):
 
 
 def get_bus_list(trips_df):
+    dt = datetime.datetime.now()
+    dt = dt - datetime.timedelta(hours=UTC_OFFSET)
+    dt.isoweekday()
+
+    saturday = dt.isoweekday() == 6
+    sunday = dt.isoweekday() == 7
+
+    if saturday:
+        trips_df = trips_df[trips_df['service_id'] == 'SA']
+    elif sunday:
+        trips_df = trips_df[trips_df['service_id'] == 'SU']
+    else: # weekday:
+        trips_df = trips_df[trips_df['service_id'] == 'WK']
+
     trips_df['unique_route_id'] = 'Route ' + trips_df['route_id']+': '+trips_df['trip_headsign']
     bl = trips_df['unique_route_id'].unique()
     return(bl.tolist())
@@ -158,6 +172,21 @@ def parse_route_name(route):
     return route_id, trip_headsign
 
 def get_trip_id(route, trips_df):
+    dt = datetime.datetime.now()
+    dt = dt - datetime.timedelta(hours=UTC_OFFSET)
+    dt.isoweekday()
+
+
+    saturday = dt.isoweekday() == 6
+    sunday = dt.isoweekday() == 7
+
+    if saturday:
+        trips_df = trips_df[trips_df['service_id'] == 'SA']
+    elif sunday:
+        trips_df = trips_df[trips_df['service_id'] == 'SU']
+    else: # weekday:
+        trips_df = trips_df[trips_df['service_id'] == 'WK']
+
     trips_df['unique_route_id'] = 'Route ' + trips_df['route_id']+': '+trips_df['trip_headsign']
     route_id, trip_headsign = parse_route_name(route)
     trips_df = trips_df[trips_df['route_id'] == route_id]
