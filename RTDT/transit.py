@@ -86,22 +86,34 @@ def get_markers_for_list_entities(list_entities, stops_df, current_location=DEFA
         dt = dt - datetime.timedelta(hours=UTC_OFFSET)
         departure_time = dt.strftime('%H:%M')
 
-        closest_stop_id = find_closest_stop(stops_df, 
-                (current_location['lat'], current_location['lng']),
-                get_stop_id_list(entity))
-
-        closest_stop_time = get_closest_stop_time(closest_stop_id, entity)
-        closest_stop_name = get_stop_name(closest_stop_id, stops_df)
+        closest_stop_time = 0
+        closest_stop_name = ''
 
         trip_id = entity.trip_update.trip.trip_id
         route_id, route_name = get_bus_name(trip_id, trips_df)
 
-        lat = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_lat'].iloc[0]
-        lon = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_lon'].iloc[0]
-        stop_name = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_name'].iloc[0].replace('[ X Stop ]', '')
-        marker.append((lat, lon, stop_name, departure_time, delay, uncertainty, closest_stop_time, closest_stop_name, route_id, route_name))
+        lat, lon, stop_name = get_location_of_stop_time_update(stop_time_update)
+
+        marker.append((lat, lon, stop_name, departure_time, delay, uncertainty, closest_stop_time, closest_stop_name, route_id, route_name, trip_id))
 
     return marker
+
+def get_location_of_stop_time_update(stop_time_update):
+    stops_df = pd.read_csv('stops.txt')
+    lat = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_lat'].iloc[0]
+    lon = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_lon'].iloc[0]
+    stop_name = stops_df[stops_df['stop_id']==int(stop_time_update.stop_id)]['stop_name'].iloc[0].replace('[ X Stop ]', '')
+    return lat, lon, stop_name
+
+
+def get_stop_location_list(stop_time_update):
+    list_stop_location = []
+
+    for stop_time in stop_time_update:
+        lat, lon, stop_name = get_location_of_stop_time_update(stop_time)
+        list_stop_location.append({'lat': lat, 'lng': lon})
+
+    return list_stop_location
 
 def get_closest_stop_time(closest_stop_id, entity):
 
@@ -135,7 +147,6 @@ def get_stop_id_list(entity):
         stop_id_list.append(int(sq.stop_id))
     return stop_id_list
 
-
 def get_bus_list(trips_df):
     dt = datetime.datetime.now()
     dt = dt - datetime.timedelta(hours=UTC_OFFSET)
@@ -156,12 +167,24 @@ def get_bus_list(trips_df):
     return(bl.tolist())
 
 
+def get_location_of_routes(l):
+
+    routePaths = {}
+    for entity in l:
+        trip_id = entity.trip_update.trip.trip_id
+        routePaths[trip_id] = get_stop_location_list(entity.trip_update.stop_time_update)
+
+    return routePaths
+
 def get_all_current_position_markers(route, current_location=DEFAULT_LOCATION):
     stops_df = pd.read_csv('stops.txt')
 
     l = get_currently_active_trips(route)
     markers = {route: get_markers_for_list_entities(l,  stops_df, current_location)}
-    data = {'markers': markers}
+    routePaths = get_location_of_routes(l)
+
+    data = {'markers': markers,
+            'routePaths': routePaths }
 
     return(data)
 
@@ -175,7 +198,6 @@ def get_trip_id(route, trips_df):
     dt = datetime.datetime.now()
     dt = dt - datetime.timedelta(hours=UTC_OFFSET)
     dt.isoweekday()
-
 
     saturday = dt.isoweekday() == 6
     sunday = dt.isoweekday() == 7

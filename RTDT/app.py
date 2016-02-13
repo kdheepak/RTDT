@@ -49,6 +49,7 @@ def data():
         print(route)
         current_location = DEFAULT_LOCATION
         data = get_all_current_position_markers(route, current_location)
+        print(data)
         data['routes'] = [route]
         return(json.dumps(data))
 

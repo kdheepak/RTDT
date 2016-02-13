@@ -218,8 +218,30 @@ function drawRoute(route, bounds){
                 getInfoCallback(map, contentString));
 
         gmarkers.push(marker);
+
+        // Add path
+
+        plotPath(stop_data[10])
+
     };
 }
+
+function plotPath(trip_id) {
+         var routePlanCoordinates = data.routePaths[trip_id]
+
+             console.log(routePlanCoordinates)
+
+           var routePath = new google.maps.Polyline({
+             path: routePlanCoordinates,
+             geodesic: true,
+             strokeColor: '#FF0000',
+             strokeOpacity: 1.0,
+             strokeWeight: 2
+           });
+
+           routePath.setMap(map);
+
+    }
 
 function continueRender()
     {
@@ -290,9 +312,16 @@ info: 'bus_list'
 
 function updateData(sel) {
 
+    if (sel != "None") {
     firstUpdate = 1;
-    setInterval(function() { getData(sel); }, 10000);
+    getData(sel)
+    // setInterval(function() { getTestData(sel); }, 10000);
+    }
 
+}
+
+function getTestData(sel) {
+data = {"routes": ["Route 0: Union Station"], "markers": {"Route 0: Union Station": []}}
 }
 
 function getData(sel) {
