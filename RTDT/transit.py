@@ -113,7 +113,18 @@ def get_stop_location_list(stop_time_update):
 
     for stop_time in stop_time_update:
         lat, lon, stop_name = get_location_of_stop_time_update(stop_time)
-        list_stop_location.append({'lat': lat, 'lng': lon})
+
+        arrival_time_dt = datetime.datetime.fromtimestamp(stop_time.arrival.time) - datetime.timedelta(hours=UTC_OFFSET)
+        arrival_time = arrival_time_dt.strftime('%H:%M')
+        if stop_time.arrival.delay != 0 or stop_time.arrival.uncertainty !=0:
+            arrival_time = arrival_time + '\nwith a delay of {} with uncertainty {}'
+
+        departure_time_dt = datetime.datetime.fromtimestamp(stop_time.departure.time) - datetime.timedelta(hours=UTC_OFFSET)
+        departure_time = departure_time_dt.strftime('%H:%M')
+        if stop_time.departure.delay != 0 or stop_time.departure.uncertainty !=0:
+            departure_time = departure_time + '\nwith a delay of {} with uncertainty {}'
+
+        list_stop_location.append({'lat': lat, 'lng': lon, 'stop_name': stop_name, 'departure_time': departure_time, 'arrival_time': arrival_time})
 
     return list_stop_location
 
@@ -150,20 +161,7 @@ def get_stop_id_list(entity):
     return stop_id_list
 
 def get_bus_list(trips_df):
-    dt = datetime.datetime.now()
-    dt = dt - datetime.timedelta(hours=7)
-
-    saturday = dt.isoweekday() == 6
-    sunday = dt.isoweekday() == 7
-
-    if saturday:
-        trips_df = trips_df[trips_df['service_id'] == 'SA']
-    elif sunday:
-        trips_df = trips_df[trips_df['service_id'] == 'SU']
-    else: # weekday:
-        trips_df = trips_df[trips_df['service_id'] == 'WK']
-
-    trips_df['unique_route_id'] = 'Route ' + trips_df['route_id']+': '+trips_df['trip_headsign']
+    trips_df['unique_route_id'] = 'Route ' + trips_df['route_id']+': '+trips_df['trip_headsign'] + ': ' + trips_df['service_id']
     bl = trips_df['unique_route_id'].unique()
     return(bl.tolist())
 
@@ -199,7 +197,7 @@ def parse_route_name(route):
 
 def get_trip_id(route, trips_df):
     dt = datetime.datetime.now()
-    dt = dt - datetime.timedelta(hours=UTC_OFFSET)
+    dt = dt - datetime.timedelta(hours=4)
     dt.isoweekday()
 
     saturday = dt.isoweekday() == 6

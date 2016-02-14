@@ -235,7 +235,19 @@ function plotPath(trip_id) {
          latLng = new google.maps.LatLng(routePlanCoordinates[i]['lat'],
                 routePlanCoordinates[i]['lng']);
 
-         var contentString = "Placeholder Text"
+        var contentString = '<div id="content">'+
+      '<div id="siteNotice">'+
+      '</div>'+
+      '<div id="bodyContent">'+
+      'Expected to depart <b>'+
+      routePlanCoordinates[i]['stop_name']+
+      '</b> at <b>'+
+      routePlanCoordinates[i]['departure_time']+
+      '</b>.';
+      '</p>'+
+      '</div>'+
+      '</div>';
+
         var marker = new google.maps.Marker({
             position: latLng,
             map: map,
