@@ -230,6 +230,35 @@ function plotPath(trip_id) {
 
              console.log(routePlanCoordinates)
 
+     for (var i = 0, length = routePlanCoordinates.length; i < length; i++) {
+
+         latLng = new google.maps.LatLng(routePlanCoordinates[i]['lat'],
+                routePlanCoordinates[i]['lng']);
+
+         var contentString = "Placeholder Text"
+        var marker = new google.maps.Marker({
+            position: latLng,
+            map: map,
+           icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillOpacity: 0.5,
+            fillColor: '#ff0000',
+            strokeOpacity: 1.0,
+            strokeColor: '#fff000',
+            strokeWeight: 3.0,
+            scale: 5 //pixels
+          }   ,
+            opacity: 1,
+            optimized: false,
+        });
+        google.maps.event.addListener(marker, 'click',
+                getInfoCallbackRoute(map, contentString )
+                );
+
+
+     }
+
+
            var routePath = new google.maps.Polyline({
              path: routePlanCoordinates,
              geodesic: true,
@@ -263,6 +292,15 @@ function continueRender()
 
     }
 
+}
+
+
+function getInfoCallbackRoute(map, content) {
+    var infowindow = new google.maps.InfoWindow({content: content});
+    return function() {
+            infowindow.setContent(content);
+            infowindow.open(map, this);
+        };
 }
 
 function getInfoCallback(map, content, trip_id) {
