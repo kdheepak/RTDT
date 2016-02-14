@@ -64,13 +64,15 @@ def get_entities(bus_list):
     feed = gtfs_realtime_pb2.FeedMessage()
     content = get_real_time_data_request_response()
     feed.ParseFromString(content)
-
     list_entities = []
 
     for entity in feed.entity:
         if entity.trip_update.trip.trip_id in bus_list:
             list_entities.append(entity)
 
+
+    print("Getting entities")
+    print(list_entities)
     return(list_entities)
 
 def get_markers_for_list_entities(list_entities, stops_df, current_location=DEFAULT_LOCATION, trips_df=None):
@@ -149,8 +151,7 @@ def get_stop_id_list(entity):
 
 def get_bus_list(trips_df):
     dt = datetime.datetime.now()
-    dt = dt - datetime.timedelta(hours=UTC_OFFSET)
-    dt.isoweekday()
+    dt = dt - datetime.timedelta(hours=7)
 
     saturday = dt.isoweekday() == 6
     sunday = dt.isoweekday() == 7
@@ -180,6 +181,8 @@ def get_all_current_position_markers(route, current_location=DEFAULT_LOCATION):
     stops_df = pd.read_csv('stops.txt')
 
     l = get_currently_active_trips(route)
+    print("Inside get all current position markers")
+    print(l)
     markers = {route: get_markers_for_list_entities(l,  stops_df, current_location)}
     routePaths = get_location_of_routes(l)
 
@@ -218,4 +221,6 @@ def get_trip_id(route, trips_df):
 def get_currently_active_trips(route):
     trips_df = pd.read_csv('trips.txt')
     total_trip_list = [str(item) for item in get_trip_id(route, trips_df)]
+    print("total trip list is ")
+    print(total_trip_list)
     return get_entities(total_trip_list)
