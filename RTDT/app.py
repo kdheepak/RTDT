@@ -6,6 +6,7 @@ from transit import get_gtfs_data
 from transit import get_real_time_data_request_response
 from transit import get_bus_list
 from transit import get_all_current_position_markers
+from transit import get_route_data
 
 import requests
 import json
@@ -21,13 +22,11 @@ DEFAULT_LOCATION = {u'lat': 39.7433814, u'lng': -104.98910989999999}
 app = Flask(__name__, template_folder="./templates")
 GoogleMaps(app)
 
-@app.route("/bus/", defaults={'route_number': None, 'route_name': None} )
-@app.route("/bus/<route_number>/<route_name>")
-def bus_info(route_number, route_name):
-    data = {
-            'route': {'number': route_number, 
-                    'name': route_name}
-            }
+@app.route("/api/", defaults={'trip_id': None} )
+@app.route("/api/<trip_id>")
+def bus_info(trip_id):
+    data = get_route_data(trip_id)
+    print(data)
     return(json.dumps(data))
 
 @app.route("/")

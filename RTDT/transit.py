@@ -8,6 +8,8 @@ import os
 import os.path
 import datetime
 
+from helper import stop_time_update_to_dict
+
 UTC_OFFSET = int(os.getenv('OFFSET', 7))
 DEFAULT_LOCATION = {u'lat': 39.7433814, u'lng': -104.98910989999999}
 
@@ -222,3 +224,27 @@ def get_currently_active_trips(route):
     print("total trip list is ")
     print(total_trip_list)
     return get_entities(total_trip_list)
+
+def get_route_name(trip_id):
+    df = pd.read_csv('./trips.txt')
+    route_df = df[df['trip_id'] == int(trip_id)]
+
+    return(str(route_df['route_id'].values[0]) + ': ' + route_df['trip_headsign'].values[0])
+
+def get_route_data(trip_id):
+    return({
+        'stop_time_update': get_stop_time_update(trip_id),
+        'route_name': get_route_name(trip_id),
+    })
+
+def get_stop_time_update(trip_id):
+    feed = gtfs_realtime_pb2.FeedMessage()
+    content = get_real_time_data_request_response()
+    feed.ParseFromString(content)
+    list_entities = []
+
+    realtime_entity_list = feed.entity
+
+    for trip in realtime_entity_list:
+        if trip.trip_update.trip.trip_id == str(trip_id):
+            return([stop_time_update_to_dict(stu) for stu in trip.trip_update.stop_time_update])
