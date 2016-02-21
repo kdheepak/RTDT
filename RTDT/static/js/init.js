@@ -6,4 +6,3 @@ mixpanel.init("816ed6a8fcec6531046e86f537e9f09c");
 
 mixpanel.track("Map") ;
 
-
