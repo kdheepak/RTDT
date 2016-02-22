@@ -1,7 +1,4 @@
 
-
-
-
 // initialize the map
 var map = L.map('map').setView([39.73, -104.99], 13);
 
@@ -58,7 +55,6 @@ $.ajax({
 }
 
 function onLocationError(e) {
-    alert(e.message);
     select = document.getElementById('routename');
     var opt = document.createElement('option');
     opt.value = "None"
@@ -74,7 +70,6 @@ $.ajax({
   dataType: 'json',
   success: function(d) {
     console.log(d)
-    temp = d
     select = document.getElementById('routename');
     for (var i = 0, length = d.length; i < length; i++){
         var opt = document.createElement('option');
@@ -82,6 +77,7 @@ $.ajax({
                 opt.innerHTML = d[i];
                 select.appendChild(opt);
     }
+   document.getElementById('spinnerElement').style.display = 'none';
   },
   error: function(xhr) {
       console.log(xhr)
