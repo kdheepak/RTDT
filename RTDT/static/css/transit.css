@@ -76,3 +76,7 @@ height: 100%;
     transform: scale(1.0);
   }
 }
+
+.form-control {
+height: 5%;
+}
