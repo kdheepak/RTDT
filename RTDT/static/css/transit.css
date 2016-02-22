@@ -4,12 +4,8 @@ height: 100%;
 margin: 0;
 padding: 0;
 }
-div#info { width:100%; position:absolute; overflow:hidden; text-align:center; bottom:0;
+div#info { width:100%; overflow:hidden; text-align:center; bottom:0;
 left:0; 
-filter:alpha(opacity=60);
--moz-opacity:0.6;
--khtml-opacity: 0.6;
-opacity: 0.6;
 background-color:white;
 padding:2px;
 }

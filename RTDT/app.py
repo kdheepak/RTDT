@@ -62,7 +62,7 @@ def mapview():
     dt = dt - datetime.timedelta(hours=UTC_OFFSET)
     last_modified = dt.strftime('%a, %d %b %Y %H:%M:%S MST')
 
-    return render_template('map.html', json_api_key=os.getenv('JSON_API'))
+    return render_template('map.html', last_modified=last_modified, json_api_key=os.getenv('JSON_API'))
 
 if __name__ == "__main__":
     app.secret_key = os.getenv('SECRET_KEY', 'SECRET_KEY')
