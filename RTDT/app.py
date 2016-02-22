@@ -52,8 +52,9 @@ def near_me():
     return(json.dumps(list_of_closest_buses(float(lat), float(lng))))
 
 
-@app.route("/")
-def mapview():
+@app.route("/<route_id>/<trip_headsign>")
+@app.route("/", defaults = {'route_id': None, 'trip_headsign': None})
+def mapview(route_id, trip_headsign):
     get_gtfs_data()
     headers = get_real_time_data_request_response(header=True)
     last_modified = headers['Last-Modified']
@@ -62,7 +63,12 @@ def mapview():
     dt = dt - datetime.timedelta(hours=UTC_OFFSET)
     last_modified = dt.strftime('%a, %d %b %Y %H:%M:%S MST')
 
-    return render_template('map.html', last_modified=last_modified, json_api_key=os.getenv('JSON_API'))
+    if route_id is None or trip_headsign is None:
+        route = None
+    else:
+        route = route_id + ": " + trip_headsign
+
+    return render_template('map.html', route=route, last_modified=last_modified, json_api_key=os.getenv('JSON_API'))
 
 if __name__ == "__main__":
     app.secret_key = os.getenv('SECRET_KEY', 'SECRET_KEY')

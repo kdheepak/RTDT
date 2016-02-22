@@ -172,8 +172,11 @@ function removeRouteMarkers() {
 
 }
 
-
 function updateData(sel) {
+    getData(sel.value)
+}
+
+function getData(v) {
 
     removeRouteMarkers()
 
@@ -183,7 +186,7 @@ $.ajax({
   url: "/api/route/",
   type: "get", //send it through get method
   dataType: 'json',
-  data:{route:sel.value},
+  data:{route:v},
   success: function(data) {
     // console.log(data)
 

@@ -33,5 +33,15 @@
 
 <script type=text/javascript src="{{url_for('static', filename='js/afterload.js') }}"></script>
 
+<script>
+var route = {{route|tojson}}
+
+if(route != null) {
+    getData(route)
+    document.getElementById('spinnerElement').style.display = 'none';
+}
+
+</script>
+
 </body>
 </html>
