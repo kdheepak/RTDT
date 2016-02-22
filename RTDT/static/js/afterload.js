@@ -138,7 +138,7 @@ function drawRoute(trip_id) {
     polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
     markerList.push(polyline)
     // zoom the map to the polyline
-    // map.fitBounds(polyline.getBounds());
+    map.fitBounds(polyline.getBounds());
 
     });
 
