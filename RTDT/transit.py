@@ -8,8 +8,6 @@ import os
 import os.path
 import datetime
 
-from helper import stop_time_update_to_dict
-
 UTC_OFFSET = int(os.getenv('OFFSET', 7))
 DEFAULT_LOCATION = {u'lat': 39.7433814, u'lng': -104.98910989999999}
 
@@ -248,3 +246,22 @@ def get_stop_time_update(trip_id):
     for trip in realtime_entity_list:
         if trip.trip_update.trip.trip_id == str(trip_id):
             return([stop_time_update_to_dict(stu) for stu in trip.trip_update.stop_time_update])
+
+def stop_time_update_to_dict(stu):
+    lat, lon, stop_name = get_location_of_stop_time_update(stu)
+    return({
+        'location': [lat, lon],
+        'stop_name': stop_name,
+        'stop_sequence': stu.stop_sequence,
+        'arrival': {
+            'time': stu.arrival.time,
+            'uncertainty': stu.arrival.uncertainty,
+            'delay': stu.arrival.delay
+        },
+        'departure': {
+            'time': stu.departure.time,
+            'uncertainty': stu.departure.uncertainty,
+            'delay': stu.departure.delay
+        },
+        'schedule_relationship': 'SCHEDULED' if stu.schedule_relationship==0 else 'UNKNOWN'
+    })
