@@ -40,9 +40,16 @@ def bus_info():
 
 @app.route("/api/proximity/")
 def near_me():
+
     lat = request.args.get('lat')
     lng = request.args.get('lng')
+
+    if lat is None or lng is None:
+        all_buses_df = pd.read_csv('trips.txt')
+        return json.dumps(get_bus_list(all_buses_df))
+
     return(json.dumps(list_of_closest_buses(float(lat), float(lng))))
+
 
 @app.route("/")
 def mapview():

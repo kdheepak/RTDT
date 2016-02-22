@@ -19,7 +19,7 @@ var temp = null
 
 function onLocationFound(e) {
     var radius = e.accuracy / 2;
-    L.marker(e.latlng).addTo(map);
+    // L.marker(e.latlng).addTo(map);
 
 $.ajax({
   url: "/api/proximity/",
@@ -40,9 +40,18 @@ $.ajax({
                 opt.innerHTML = d[i];
                 select.appendChild(opt);
     }
+    opt.value = "None"
+    opt.innerHTML = "------ ALL ROUTES -----";
+    select.appendChild(opt);
+    addAllBus()
   },
   error: function(xhr) {
-    //Do Something to handle error
+    select = document.getElementById('routename');
+    var opt = document.createElement('option');
+    opt.value = "None"
+    opt.innerHTML = "------ SELECT ROUTE -----";
+    select.appendChild(opt);
+    addAllBus()
   }
 });
 
@@ -50,6 +59,35 @@ $.ajax({
 
 function onLocationError(e) {
     alert(e.message);
+    select = document.getElementById('routename');
+    var opt = document.createElement('option');
+    opt.value = "None"
+    opt.innerHTML = "------ SELECT ROUTE -----";
+    select.appendChild(opt);
+    addAllBus()
+}
+
+function addAllBus() {
+$.ajax({
+  url: "/api/proximity/",
+  type: "get", //send it through get method
+  dataType: 'json',
+  success: function(d) {
+    console.log(d)
+    temp = d
+    select = document.getElementById('routename');
+    for (var i = 0, length = d.length; i < length; i++){
+        var opt = document.createElement('option');
+                opt.value = d[i];
+                opt.innerHTML = d[i];
+                select.appendChild(opt);
+    }
+  },
+  error: function(xhr) {
+      console.log(xhr)
+  }
+});
+
 }
 
 map.on('locationfound', onLocationFound);
@@ -118,8 +156,19 @@ function removeMarkers() {
     latlngs.splice(0)
 }
 
+function removeRouteMarkers() {
+
+    for (var i = 0; i < routeMarkerList.length; i++) {
+        map.removeLayer(routeMarkerList[i])
+    }
+    routeMarkerList.splice(0)
+
+}
+
 
 function updateData(sel) {
+
+    removeRouteMarkers()
 
     console.log(sel.value)
 

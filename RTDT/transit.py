@@ -162,7 +162,7 @@ def get_stop_id_list(entity):
     return stop_id_list
 
 def get_bus_list(trips_df):
-    trips_df['unique_route_id'] = 'Route ' + trips_df['route_id']+': '+trips_df['trip_headsign'] + ': ' + trips_df['service_id']
+    trips_df['unique_route_id'] = trips_df['route_id']+': '+trips_df['trip_headsign']
     bl = trips_df['unique_route_id'].unique()
     return(bl.tolist())
 
