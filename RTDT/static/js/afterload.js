@@ -13,10 +13,11 @@ L.tileLayer('https://{s}.tiles.mapbox.com/v4/{mapId}/{z}/{x}/{y}.png?access_toke
 	map._initPathRoot()    
 
 var temp = null
+var current_location_marker = null
 
 function onLocationFound(e) {
     var radius = e.accuracy / 2;
-    // L.marker(e.latlng).addTo(map);
+    current_location_marker = L.marker(e.latlng).addTo(map);
 
 $.ajax({
   url: "/api/proximity/",
@@ -116,16 +117,24 @@ function drawRoute(trip_id) {
 
     d3.json("/api/trip_id/"+trip_id,function(error,response){
 
+    circleIcon = L.icon({
+    iconUrl: '/static/circle.png',
+    iconSize: [30, 30], // size of the icon
+    })
+
         json_data = response
 
         for (var i = 0; i < json_data.stop_time_update.length; i++) {
 
             marker = new L.marker([json_data.stop_time_update[i].location[0],
-                    json_data.stop_time_update[i].location[1]])
+                    json_data.stop_time_update[i].location[1]], {
+                        //icon: circleIcon,
+                    })
                 .bindPopup("<b>" + json_data.stop_time_update[i].stop_name + "</b><br>Expected departure time - " +
                         json_data.stop_time_update[i].departure.time)
                 .addTo(map);
-            
+
+        //marker.setZIndexOffset(100)
         //Get latlng from first marker
         latlngs.push(marker.getLatLng());
         markerList.push(marker)
@@ -135,7 +144,7 @@ function drawRoute(trip_id) {
 
     //From documentation http://leafletjs.com/reference.html#polyline
     // create a red polyline from an arrays of LatLng points
-    polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
+    polyline = L.polyline(latlngs, {color: 'red', opacity: 1, fillOpacity: 1}).addTo(map);
     markerList.push(polyline)
     // zoom the map to the polyline
     // map.fitBounds(polyline.getBounds());
@@ -201,7 +210,7 @@ $.ajax({
     routeMarkerList.push(marker)
     }
 
-     var group = new L.featureGroup(routeMarkerList);
+     var group = new L.featureGroup(routeMarkerList.concat([current_location_marker]));
 
      map.fitBounds(group.getBounds());
 
