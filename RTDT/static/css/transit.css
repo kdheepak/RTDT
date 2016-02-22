@@ -79,4 +79,9 @@ height: 100%;
 
 .form-control {
 height: 5%;
+
+}
+
+.leaflet-popup-content {
+font-size: xx-large;
 }

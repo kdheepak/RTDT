@@ -182,7 +182,7 @@ $.ajax({
 
     transitIcon = L.icon({
     iconUrl: '/static/transit.jpg',
-    iconSize:     [25, 25], // size of the icon
+    iconSize:     [50, 50], // size of the icon
     })
     for (var i = 0; i < data.length; i++) {
 
