@@ -78,8 +78,8 @@ height: 100%;
 }
 
 .form-control {
-height: 5%;
-
+height: 10%;
+font-size: xx-large;
 }
 
 .leaflet-popup-content {
