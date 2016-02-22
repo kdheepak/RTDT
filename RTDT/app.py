@@ -53,6 +53,7 @@ def near_me():
 
 @app.route("/")
 def mapview():
+    get_gtfs_data()
     return render_template('map.html', json_api_key=os.getenv('JSON_API'))
 
 if __name__ == "__main__":
