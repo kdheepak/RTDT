@@ -265,3 +265,30 @@ def stop_time_update_to_dict(stu):
         },
         'schedule_relationship': 'SCHEDULED' if stu.schedule_relationship==0 else 'UNKNOWN'
     })
+
+def get_trip_ids(route_id, trip_headsign):
+
+    trips_df = pd.read_csv("./trips.txt")
+
+    route_df = trips_df[(trips_df['route_id'] == str(route_id)) & (trips_df['trip_headsign'] == trip_headsign)]
+
+    feed = gtfs_realtime_pb2.FeedMessage()
+    content = get_real_time_data_request_response()
+    feed.ParseFromString(content)
+    list_entities = []
+
+    realtime_entity_list = feed.entity
+
+    current_routes = []
+
+    for trip in realtime_entity_list:
+        if any(route_df['trip_id'] == int(trip.trip_update.trip.trip_id)):
+            lat, lon, stop_name = get_location_of_stop_time_update(trip.trip_update.stop_time_update[0])
+            current_routes.append({
+                    'trip_name': route_id + ": " + trip_headsign,
+                    'trip_id': int(trip.trip_update.trip.trip_id),
+                    'location': [lat, lon],
+                    'current_location': stop_name
+                })
+
+    return(current_routes)

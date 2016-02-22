@@ -7,6 +7,7 @@ from transit import get_real_time_data_request_response
 from transit import get_bus_list
 from transit import get_all_current_position_markers
 from transit import get_route_data
+from transit import get_trip_ids
 
 import requests
 import json
@@ -19,15 +20,21 @@ from helper import merge_two_dicts
 
 DEFAULT_LOCATION = {u'lat': 39.7433814, u'lng': -104.98910989999999}
 
-app = Flask(__name__, template_folder="./templates")
-GoogleMaps(app)
+app = Flask(__name__, template_folder="./templates",
+        static_url_path="/static",
+        static_folder="./static")
 
-@app.route("/api/", defaults={'trip_id': None} )
-@app.route("/api/<trip_id>")
-def bus_info(trip_id):
+@app.route("/api/trip_id/<trip_id>")
+def trip_info(trip_id):
     data = get_route_data(trip_id)
-    print(data)
     return(json.dumps(data))
+
+@app.route("/api/route/", defaults={'route_id': '0', 'trip_headsign': 'Union Station'} )
+@app.route("/api/route/<route_id>/<trip_headsign>")
+def bus_info(route_id, trip_headsign):
+    data = get_trip_ids(route_id, trip_headsign)
+    return(json.dumps(data))
+
 
 @app.route("/")
 def mapview():
