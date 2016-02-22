@@ -15,9 +15,37 @@ L.tileLayer('https://{s}.tiles.mapbox.com/v4/{mapId}/{z}/{x}/{y}.png?access_toke
 	/* Initialize the SVG layer */
 	map._initPathRoot()    
 
+var temp = null
+
 function onLocationFound(e) {
     var radius = e.accuracy / 2;
     L.marker(e.latlng).addTo(map);
+
+$.ajax({
+  url: "/api/proximity/",
+  type: "get", //send it through get method
+  dataType: 'json',
+  data:{lat:e.latlng.lat, lng:e.latlng.lng},
+  success: function(d) {
+    console.log(d)
+    temp = d
+    select = document.getElementById('routename');
+    var opt = document.createElement('option');
+    opt.value = "None"
+    opt.innerHTML = "------ SELECT ROUTE -----";
+    select.appendChild(opt);
+    for (var i = 0, length = d.length; i < length; i++){
+        var opt = document.createElement('option');
+                opt.value = d[i];
+                opt.innerHTML = d[i];
+                select.appendChild(opt);
+    }
+  },
+  error: function(xhr) {
+    //Do Something to handle error
+  }
+});
+
 }
 
 function onLocationError(e) {
@@ -60,7 +88,7 @@ function drawRoute(trip_id) {
 
             marker = new L.marker([json_data.stop_time_update[i].location[0],
                     json_data.stop_time_update[i].location[1]])
-                .bindPopup("<b>" + json_data.stop_time_update[i].stop_name + "</b><br>" +
+                .bindPopup("<b>" + json_data.stop_time_update[i].stop_name + "</b><br>Expected departure time - " +
                         json_data.stop_time_update[i].departure.time)
                 .addTo(map);
             
@@ -91,9 +119,19 @@ function removeMarkers() {
 }
 
 
-d3.json("/api/route/",function(error,data){
+function updateData(sel) {
 
+    console.log(sel.value)
+
+$.ajax({
+  url: "/api/route/",
+  type: "get", //send it through get method
+  dataType: 'json',
+  data:{route:sel.value},
+  success: function(data) {
     console.log(data)
+
+    removeMarkers()
 
     transitIcon = L.icon({
     iconUrl: '/static/transit.jpg',
@@ -103,8 +141,10 @@ d3.json("/api/route/",function(error,data){
 
         marker = new L.marker([data[i].location[0],
                 data[i].location[1]], {icon: transitIcon, trip_id: data[i].trip_id})
-            .bindPopup("<b>" + data[i].trip_name + "</b><br>"+
-                    data[i].current_location)
+            .bindPopup("<b>" + data[i].trip_name + "</b><br>Expected to depart "+
+                    data[i].current_location +
+                    " at " +
+                    data[i].expected_departure)
             .addTo(map);
 
         marker.on('click', function(e) {
@@ -113,5 +153,10 @@ d3.json("/api/route/",function(error,data){
 
     routeMarkerList.push(marker)
     }
-
+  },
+  error: function(xhr) {
+    //Do Something to handle error
+  }
 });
+
+}

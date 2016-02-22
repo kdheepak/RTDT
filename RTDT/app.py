@@ -8,6 +8,7 @@ from transit import get_bus_list
 from transit import get_all_current_position_markers
 from transit import get_route_data
 from transit import get_trip_ids
+from transit import list_of_closest_buses
 
 import requests
 import json
@@ -29,12 +30,19 @@ def trip_info(trip_id):
     data = get_route_data(trip_id)
     return(json.dumps(data))
 
-@app.route("/api/route/", defaults={'route_id': '0', 'trip_headsign': 'Union Station'} )
-@app.route("/api/route/<route_id>/<trip_headsign>")
-def bus_info(route_id, trip_headsign):
+@app.route("/api/route/")
+def bus_info():
+    route = request.args.get('route')
+    route_id = route.split(':')[0].strip()
+    trip_headsign = route.split(':')[1].strip()
     data = get_trip_ids(route_id, trip_headsign)
     return(json.dumps(data))
 
+@app.route("/api/proximity/")
+def near_me():
+    lat = request.args.get('lat')
+    lng = request.args.get('lng')
+    return(json.dumps(list_of_closest_buses(float(lat), float(lng))))
 
 @app.route("/")
 def mapview():

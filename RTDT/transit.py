@@ -7,6 +7,7 @@ import zipfile
 import os
 import os.path
 import datetime
+import math
 
 UTC_OFFSET = int(os.getenv('OFFSET', 7))
 DEFAULT_LOCATION = {u'lat': 39.7433814, u'lng': -104.98910989999999}
@@ -254,17 +255,23 @@ def stop_time_update_to_dict(stu):
         'stop_name': stop_name,
         'stop_sequence': stu.stop_sequence,
         'arrival': {
-            'time': stu.arrival.time,
+            'time': time_convert(stu.arrival.time),
             'uncertainty': stu.arrival.uncertainty,
             'delay': stu.arrival.delay
         },
         'departure': {
-            'time': stu.departure.time,
+            'time': time_convert(stu.departure.time),
             'uncertainty': stu.departure.uncertainty,
             'delay': stu.departure.delay
         },
         'schedule_relationship': 'SCHEDULED' if stu.schedule_relationship==0 else 'UNKNOWN'
     })
+
+def time_convert(t):
+    dt = datetime.datetime.fromtimestamp(t)
+    dt = dt - datetime.timedelta(hours=UTC_OFFSET)
+    departure_time = dt.strftime('%H:%M')
+    return(departure_time)
 
 def get_trip_ids(route_id, trip_headsign):
 
@@ -288,7 +295,68 @@ def get_trip_ids(route_id, trip_headsign):
                     'trip_name': route_id + ": " + trip_headsign,
                     'trip_id': int(trip.trip_update.trip.trip_id),
                     'location': [lat, lon],
-                    'current_location': stop_name
+                    'current_location': stop_name,
+                    'expected_departure': time_convert(trip.trip_update.stop_time_update[0].departure.time)
                 })
 
     return(current_routes)
+
+
+
+def distance_on_unit_sphere(x, lat2, long2):
+
+    lat1 = x['stop_lat']
+    long1 = x['stop_lon']
+
+    # Convert latitude and longitude to
+    # spherical coordinates in radians.
+    degrees_to_radians = math.pi/180.0
+
+    # phi = 90 - latitude
+    phi1 = (90.0 - lat1)*degrees_to_radians
+    phi2 = (90.0 - lat2)*degrees_to_radians
+
+    # theta = longitude
+    theta1 = long1*degrees_to_radians
+    theta2 = long2*degrees_to_radians
+
+    # Compute spherical distance from spherical coordinates.
+
+    # For two locations in spherical coordinates
+    # (1, theta, phi) and (1, theta', phi')
+    # cosine( arc length ) =
+    #    sin phi sin phi' cos(theta-theta') + cos phi cos phi'
+    # distance = rho * arc length
+
+    cos = (math.sin(phi1)*math.sin(phi2)*math.cos(theta1 - theta2) +
+           math.cos(phi1)*math.cos(phi2))
+    arc = math.acos( cos )
+
+    # Remember to multiply arc by the radius of the earth
+    # in your favorite set of units to get length.
+    return 3959 * arc
+
+def list_of_closest_buses(lat, lng):
+    trips_df = pd.read_csv('./trips.txt')
+    stop_df = pd.read_csv('./stops.txt')
+    stop_df['proximity'] = stop_df.apply(distance_on_unit_sphere, args=(lat,lng), axis=1)
+    stop_df = stop_df.sort_values(by='proximity')
+    stop_times_df = pd.read_csv('./stop_times.txt')
+    unique_bus_names = []
+    i = 0
+    while len(unique_bus_names) < 5:
+        build_bus_name_list(unique_bus_names, stop_df, stop_times_df, trips_df, i)
+        i = i+1
+
+    return(unique_bus_names)
+
+def build_bus_name_list(unique_bus_names, stop_df, stop_times_df, trips_df, i):
+    stop_id = stop_df.iloc[i]['stop_id']
+
+    def match_bus_name(x):
+        route_id, route_name = get_bus_name(x['trip_id'], trips_df)
+        return(route_id + ": " + route_name)
+
+    for item in stop_times_df[stop_times_df['stop_id'] == stop_id].apply(match_bus_name, axis=1).unique():
+        if item not in unique_bus_names:
+            unique_bus_names.append(item)
