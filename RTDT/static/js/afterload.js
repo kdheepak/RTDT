@@ -24,7 +24,7 @@ $.ajax({
   dataType: 'json',
   data:{lat:e.latlng.lat, lng:e.latlng.lng},
   success: function(d) {
-    console.log(d)
+    // console.log(d)
     temp = d
     select = document.getElementById('routename');
     var opt = document.createElement('option');
@@ -69,7 +69,7 @@ $.ajax({
   type: "get", //send it through get method
   dataType: 'json',
   success: function(d) {
-    console.log(d)
+    // console.log(d)
     select = document.getElementById('routename');
     for (var i = 0, length = d.length; i < length; i++){
         var opt = document.createElement('option');
@@ -108,11 +108,11 @@ var polyline = null
 
 function drawRoute(trip_id) {
 
-    console.log(markerList)
+    // console.log(markerList)
 
     removeMarkers()
 
-    console.log(trip_id)
+    // console.log(trip_id)
 
     d3.json("/api/trip_id/"+trip_id,function(error,response){
 
@@ -138,7 +138,9 @@ function drawRoute(trip_id) {
     polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
     markerList.push(polyline)
     // zoom the map to the polyline
-    map.fitBounds(polyline.getBounds());
+    // map.fitBounds(polyline.getBounds());
+
+    // console.log(polyline.getBounds())
 
     });
 
@@ -166,7 +168,7 @@ function updateData(sel) {
 
     removeRouteMarkers()
 
-    console.log(sel.value)
+    // console.log(sel.value)
 
 $.ajax({
   url: "/api/route/",
@@ -174,7 +176,7 @@ $.ajax({
   dataType: 'json',
   data:{route:sel.value},
   success: function(data) {
-    console.log(data)
+    // console.log(data)
 
     removeMarkers()
 
@@ -198,6 +200,11 @@ $.ajax({
 
     routeMarkerList.push(marker)
     }
+
+     var group = new L.featureGroup(routeMarkerList);
+
+     map.fitBounds(group.getBounds());
+
   },
   error: function(xhr) {
     //Do Something to handle error
