@@ -20,6 +20,7 @@ import pandas as pd
 from helper import merge_two_dicts
 
 DEFAULT_LOCATION = {u'lat': 39.7433814, u'lng': -104.98910989999999}
+UTC_OFFSET = int(os.getenv('OFFSET', 7))
 
 app = Flask(__name__, template_folder="./templates",
         static_url_path="/static",
@@ -54,6 +55,13 @@ def near_me():
 @app.route("/")
 def mapview():
     get_gtfs_data()
+    headers = get_real_time_data_request_response(header=True)
+    last_modified = headers['Last-Modified']
+
+    dt = datetime.datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S GMT')
+    dt = dt - datetime.timedelta(hours=UTC_OFFSET)
+    last_modified = dt.strftime('%a, %d %b %Y %H:%M:%S MST')
+
     return render_template('map.html', json_api_key=os.getenv('JSON_API'))
 
 if __name__ == "__main__":
