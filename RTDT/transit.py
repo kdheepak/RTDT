@@ -13,7 +13,7 @@ UTC_OFFSET = int(os.getenv('OFFSET', 7))
 DEFAULT_LOCATION = {u'lat': 39.7433814, u'lng': -104.98910989999999}
 
 def get_gtfs_data(force=False):
-    url = 'http://www.rtd-denver.com/GoogleFeeder/google_transit_Jan16_Runboard.zip'
+    url = 'http://www.rtd-denver.com/GoogleFeeder/google_transit_Apr16_Runboard.zip'
     headers_file = 'google_feeder_headers.txt'
 
     last_modified = requests.head(url).headers['Date']
