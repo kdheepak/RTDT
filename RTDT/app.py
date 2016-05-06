@@ -57,7 +57,7 @@ def near_me():
 def mapview(route_id, trip_headsign):
     get_gtfs_data()
     headers = get_real_time_data_request_response(header=True)
-    last_modified = headers['Last-Modified']
+    last_modified = headers['Date']
 
     dt = datetime.datetime.strptime(last_modified, '%a, %d %b %Y %H:%M:%S GMT')
     dt = dt - datetime.timedelta(hours=UTC_OFFSET)
